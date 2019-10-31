@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Implements the OpenRTB 2.3 bid request object.
- * 
+ *
  * @author Ben M. Faul
  *
  */
@@ -100,7 +100,7 @@ public class BidRequest {
 	transient public boolean blackListed = false;
 
 	transient public static Set<String> blackList;
-	
+
 	/** Keep a list of piggybackers (piggyback a win on a pixel */
 	private static Set<String> piggyBackedWins = ConcurrentHashMap.newKeySet();
 
@@ -120,7 +120,7 @@ public class BidRequest {
 	 * mapp. This way the JSON is queried once and the query becomes the key,
 	 * and the JSON value becomes the map value. With multiple campaigns it is
 	 * important to not be traversing the JSON tree for each campaign.
-	 * 
+	 *
 	 * The compiled attributes are stored in mapp. In setup, the compiled list
 	 * of key/values is then put in the 'database' object for the bidrequest.
 	 */
@@ -297,7 +297,7 @@ public class BidRequest {
 
 	/**
 	 * Create a bid request from a file .
-	 * 
+	 *
 	 * @param in
 	 *            String. The name of the file to read.
 	 * @throws Exception
@@ -316,7 +316,7 @@ public class BidRequest {
 
 	/**
 	 * Create a bid from an input stream.
-	 * 
+	 *
 	 * @param in
 	 *            InputStream. The stream to read the JSON from
 	 * @throws Exception
@@ -356,7 +356,7 @@ public class BidRequest {
 	 * Return a bid response of the appropriate type, normally it is a simple
 	 * BidResponse, but for non openRTB you may need to use a different
 	 * response.
-	 * 
+	 *
 	 * @param camp
 	 *            Campagign. The campaign used to create the response.
 	 * @param creat
@@ -379,7 +379,7 @@ public class BidRequest {
 	/**
 	 * Return's the bid response no bid JSON or other (protoc in Adx for
 	 * example).
-	 * 
+	 *
 	 * @param reason
 	 *            String. The reason you are returning no bid.
 	 * @return String. The reason code.
@@ -390,7 +390,7 @@ public class BidRequest {
 
 	/**
 	 * Return the no bid code. Note, for Adx. you have to return 200
-	 * 
+	 *
 	 * @return
 	 */
 	public int returnNoBidCode() {
@@ -403,7 +403,7 @@ public class BidRequest {
 
 	/**
 	 * Return the application type this bid request/response uses
-	 * 
+	 *
 	 * @return String. The content type to return.
 	 */
 	public String returnContentType() {
@@ -414,7 +414,7 @@ public class BidRequest {
 	 * Sets up the database of values of the JSON, from the mapped keys in the
 	 * campaigns. THis traverses the JSON once, and stores the required values
 	 * needed by campaigns once.
-	 * 
+	 *
 	 * @throws Exception
 	 *             on JSON processing errors.
 	 */
@@ -592,7 +592,7 @@ public class BidRequest {
 	}
 	/**
 	 * Return a double, whether it's integer or not.
-	 * 
+	 *
 	 * @param o
 	 *            Obhect. The json object.
 	 * @return double. Returns the value as a double.
@@ -615,7 +615,7 @@ public class BidRequest {
 
 	/**
 	 * Given a JSON bject, return it's string representation.
-	 * 
+	 *
 	 * @param o
 	 *            Object. The object to interpret.
 	 * @return
@@ -639,7 +639,7 @@ public class BidRequest {
 		return js.asText();
 	}
 
-	/** 
+	/**
 	 * Does this bid request pass muster for bot detection.
 	 * @return boolean. Returns true if not configured for bot detection or if configured and the bid was not deemed a bot.
 	 * @throws Exception on I/O errors.
@@ -649,7 +649,7 @@ public class BidRequest {
 		// This can happen on exchanges like appnexus and google which have some other crazy signals
 		if (notABidRequest())
 			return true;
-		
+
 		if (Configuration.forensiq == null) {
 			return true;
 		}
@@ -703,7 +703,7 @@ public class BidRequest {
 	/**
 	 * Given a key, return the value of the bid request of that key that is now
 	 * stored in the database.
-	 * 
+	 *
 	 * @param what
 	 *            String. The key to use for the retrieval.
 	 * @return Object. The value of that key.
@@ -718,7 +718,7 @@ public class BidRequest {
 
 	/**
 	 * Add a constraint key to the mapp.
-	 * 
+	 *
 	 * @param line
 	 *            String. The Javascript notation of the constraint.
 	 */
@@ -736,7 +736,7 @@ public class BidRequest {
 	 * Compile the JSON values into the database from the list of constraint
 	 * keys. This is what queries the JSON and places it into the database
 	 * object.
-	 * 
+	 *
 	 * @param key
 	 *            String. The key name.
 	 * @param list
@@ -783,7 +783,7 @@ public class BidRequest {
 	 * Interrogate an entity in the JSON using dotted format. Example:
 	 * {a:{b:c:1}}to find c: "a.b.c" Example: {a:{b:[{x:1},{x:2}]} to find x[1]:
 	 * "a.b.1.x"
-	 * 
+	 *
 	 * @param line
 	 *            . String. The string defining the dotted name.
 	 * @return Object. Returns the object at the 'line' location or null if it
@@ -816,7 +816,7 @@ public class BidRequest {
 	 * ['device','geo','lat']. The JSON tree's device node is found, then in
 	 * device, the geo node is found, and then the 'lat' node is then found in
 	 * geo.
-	 * 
+	 *
 	 * @param list
 	 *            String. The list of JSON node names.
 	 * @return Object. The object found at 'x.y.z'
@@ -861,7 +861,7 @@ public class BidRequest {
 
 	/**
 	 * Returns this object as a JSON string.
-	 * 
+	 *
 	 * @return String. he JSON form of this class.
 	 */
 	public String toString() {
@@ -873,7 +873,7 @@ public class BidRequest {
 
 	/**
 	 * Return the id request id.
-	 * 
+	 *
 	 * @return String. The hashid of this bid request.
 	 */
 	public String getId() {
@@ -882,7 +882,7 @@ public class BidRequest {
 
 	/**
 	 * Parse the incoming bid request.
-	 * 
+	 *
 	 * @return boolean. Returns true if the Nexage specific parsing of the bid
 	 *         was successful.
 	 */
@@ -893,7 +893,7 @@ public class BidRequest {
 
 	/**
 	 * Override to do whatever special parsing tour exchange requires.
-	 * 
+	 *
 	 * @return boolean. Returns true if it parsed ok, else false on ill-formed
 	 *         JSON.
 	 */
@@ -904,7 +904,7 @@ public class BidRequest {
 	/**
 	 * Override this to create a copy of the BidRequest that derives from thos
 	 * class.
-	 * 
+	 *
 	 * @param in
 	 *            InputStream. The stream containing the JSON of the request.
 	 * @return BidRequest. The new object
@@ -917,7 +917,7 @@ public class BidRequest {
 
 	/**
 	 * Returns the asset id in the bid request of the requested index
-	 * 
+	 *
 	 * @param type String. The type of asset
 	 * @param subtype String. sub type of the asset
 	 * @param value int. The integer representation of the entity.
@@ -953,7 +953,7 @@ public class BidRequest {
 	/**
 	 * Return the original root node, useful for dumping to string for later
 	 * examination.
-	 * 
+	 *
 	 * @return JsonNode. The original root node of the request.
 	 */
 	public JsonNode getOriginal() {
@@ -975,7 +975,7 @@ public class BidRequest {
 
 	/**
 	 * Set the exchange field.
-	 * 
+	 *
 	 * @param exchange
 	 *            String. The name of the exchange
 	 */
@@ -985,7 +985,7 @@ public class BidRequest {
 
 	/**
 	 * Get the exchange name
-	 * 
+	 *
 	 * @return String. The name of the exchange for this request.
 	 */
 	public String getExchange() {
@@ -994,7 +994,7 @@ public class BidRequest {
 
 	/**
 	 * Add an impression.
-	 * 
+	 *
 	 * @param imp
 	 *            Impression. The impression to add.
 	 */
@@ -1004,7 +1004,7 @@ public class BidRequest {
 
 	/**
 	 * Get the number of impressions from the request.
-	 * 
+	 *
 	 * @return int. The number of impressions found.
 	 */
 	public int getImpressions() {
@@ -1015,7 +1015,7 @@ public class BidRequest {
 
 	/**
 	 * Return the nth impression.
-	 * 
+	 *
 	 * @param n
 	 *            int. The impression to return.
 	 * @return
@@ -1028,7 +1028,7 @@ public class BidRequest {
 
 	/**
 	 * Handle any specific configurations, used by child classes (Exchange).
-	 * 
+	 *
 	 * @param m
 	 *            Map. The extensions map,
 	 * @throws Exception
@@ -1041,7 +1041,7 @@ public class BidRequest {
 	/**
 	 * Override this method to indicate this is not a bid request. Like AppNexus
 	 * and their hokey /ready flag.
-	 * 
+	 *
 	 * @return boolean Return true of this isn't a bid request.
 	 */
 	public boolean notABidRequest() {
@@ -1051,7 +1051,7 @@ public class BidRequest {
 	/**
 	 * Override this method to return the code the non bid request return is
 	 * supposed to be.
-	 * 
+	 *
 	 * @return
 	 */
 	public int getNonBidReturnCode() {
@@ -1061,7 +1061,7 @@ public class BidRequest {
 	/**
 	 * Override this method to return the data response the non bid request
 	 * return is supposed to be.
-	 * 
+	 *
 	 * @return
 	 */
 	public String getNonBidRespose() {
@@ -1104,11 +1104,11 @@ public class BidRequest {
 			return;
 		ec.incrementError(exchange);
 	}
-	
+
 	public static List<Map> getExchangeCounts() {
 		return ec.getList();
 	}
-	
+
 	/**
 	 * Determine if the exhcange using this type of request uses a piggybacked win url, or a faked one.
 	 * @param exchange String. The exchange name.
@@ -1119,7 +1119,7 @@ public class BidRequest {
 			return false;
 		return piggyBackedWins.contains(exchange);
 	}
-	
+
 	/**
 	 * Add the exchange to the piggy backed win set
 	 * @param exchange String. The exchange to add to the piggy back list

@@ -276,7 +276,7 @@ public class RTBServer implements Runnable {
      * Bid target to exchange class map
      */
     public static Map<String, BidRequest> exchanges = new HashMap();
-    
+
     /** Trace stuff coming in to the bidder */
     public static volatile boolean trace = false;
 
@@ -1267,7 +1267,7 @@ class Handler extends AbstractHandler {
                 response.getWriter().println("1");
                 return;
             }
-            
+
             if (target.contains("/callback")) {
                 response.setContentType("image/bmp;charset=utf-8");
                 response.setStatus(HttpServletResponse.SC_OK);
@@ -1546,7 +1546,7 @@ class Handler extends AbstractHandler {
                   return "Deleted RTB cookie: " + c.getValue() + ". Restart your browser to take effect.";
               }
           }
-          return "No RTB cookie found"; 
+          return "No RTB cookie found";
     }
 
     void handleJsAndCss(HttpServletResponse response, File file) throws Exception {
@@ -1782,7 +1782,7 @@ class AdminHandler extends Handler {
         try {
             if (request.getHeader("Content-Encoding") != null && request.getHeader("Content-Encoding").equals("gzip"))
                 isGzip = true;
-            
+
 
             if (RTBServer.trace)
                 logger.info("Trace: {}",target);
@@ -1908,6 +1908,8 @@ class AdminHandler extends Handler {
             // ///////////////////////////
             if (target.contains("ajax")) {
                 response.setContentType("text/javascript;charset=utf-8");
+                response.addHeader("Access-Control-Allow-Origin", "*");
+                response.addHeader("Access-Control-Allow-Methods","GET, OPTIONS, HEAD, PUT, POST");
                 response.setStatus(HttpServletResponse.SC_OK);
                 baseRequest.setHandled(true);
                 String data = WebCampaign.getInstance().handler(request, body);

@@ -1,7 +1,8 @@
 #
-# Contains the full stack of the RTB4FREe stack (not including crosstalk, elk, mysql or campaign manager)
+# Contains the full stack of bidder3 (not including crosstalk, elk, mysql)
 # Does contain zookeeper and kafka.
 #
+
 version: "3"
 
 services:
@@ -9,37 +10,100 @@ services:
   zookeeper:
     image: "zookeeper"
     ports:
-      - "2181:2181"
-    networks:
-      - rtb_net
+    - "2181:2181"
 
   kafka:
     image: "ches/kafka"
     environment:
       ZOOKEEPER_IP: "zookeeper"
     ports:
-      - "9092:9092"
-    networks:
-      - rtb_net
+    - "9092:9092"
     depends_on:
-      - zookeeper
+    - zookeeper
 
   zerospike:
     image: "jacamars/zerospike:v1"
     environment:
       BROKERLIST: "kafka:9092"
     ports:
-      - "6000:6000"
-      - "6001:6001"
-      - "6002:6002"
-      - "7001:7001"
-    #volumes:
-    #  - "./cache.db:/cache.db"
-    networks:
-      - rtb_net
+    - "6000:6000"
+    - "6001:6001"
+    - "6002:6002"
+    - "7001:7001"
+  #    #volumes:
+  #    #  - "./cache.db:/cache.db"
+  #    depends_on:
+  #      - kafka
+    command: bash -c "./wait-for-it.sh kafka:9092 -t 120 && sleep 1; ./zerospike"
+
+
+#  db:
+#    image: ploh/mysqlrtb
+#    ports:
+#    - "3305:3306"
+#    environment:
+#    - MYSQL_ROOT_PASSWORD=rtb4free
+#    - MYSQL_DATABASE=rtb4free
+#    - MYSQL_USER=ben
+#    - MYSQL_PASSWORD=test
+#  web:
+#    image: ploh/rtbadmin_open
+#    command: bash -c "./wait_for_it.sh db:3306 --t120; bundle exec rails s -p 3000 -b '0.0.0.0'"
+#    ports:
+#    - "3000:3000"
+#    environment:
+#    - CUSTOMER_NAME=RTB4FREE
+#    - RTB4FREE_DATABASE_HOST=db
+#    - RTB4FREE_DATABASE_PORT=3306
+#    - RTB4FREE_DATABASE_USERNAME=ben
+#    - RTB4FREE_DATABASE_PASSWORD=test
+#    - RTB4FREE_DATABASE_NAME=rtb4free
+#    - RTB_CROSSTALK_REGION_HOSTS={"US" => "crosstalk"}
+#    - ELASTICSEARCH_ENABLE=true
+#    - ELASTICSEARCH_HOST=elastic1:9200
+#    - ELASTICSEARCH_KIBANA_URL=http://kibana:5601/
+
+
+  crosstalk:
+    image: "jacamars/crosstalk:v1"
+    environment:
+      REGION: "US"
+      GHOST: "elastic1"
+      AHOST: "elastic1"
+      BROKERLIST: "kafka:9092"
+      PUBSUB: "zerospike"
+      CONTROL: "8100"
+      JDBC: "jdbc:mysql://68.183.53.10:3301/rtb4free?user=root&password=MkUS5BD5wzG9H3dE"
     depends_on:
-      - kafka
-    command: bash -c "./wait-for-it.sh kafka:9092 --t=120 && sleep 1; ./zerospike"
+    - kafka
+    - zerospike
+
+#  elastic1:
+#    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.2
+#    ports:
+#    - "9200:9200"
+#    - "9300:9300"
+#    environment:
+#    - discovery.type=single-node
+#    - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+#    volumes:
+#    - "./esdata1:/usr/share/elasticsearch/data"
+
+  #      networks:
+  #        - kafka_net
+  #        - control_net
+
+#  logstash1:
+#    image: docker.elastic.co/logstash/logstash:6.1.1
+#    ports:
+#    - "5044:5044"
+#    environment:
+#    - "XPACK_MONITORING_ELASTICSEARCH_URL=http://elastic1:9200"
+#    - "XPACK_MONITORING_ENABLED=true"
+#    - "LS_JAVA_OPTS=-Xmx1g"
+
+
+
 
   bidder:
     image: "jacamars/rtb4free:v1"
@@ -47,34 +111,28 @@ services:
       BROKERLIST: "kafka:9092"
       PUBSUB: "zerospike"
       EXTERNAL: "http://localhost:8080"
-      ACCOUNTING: "NONE"
-      S3BUCKET: ""
-      S3REGION: ""
-      S3SECRETKEY: ""
-      S3ACCESSKEY: ""
-      GOOGLE_EKEY: ""
-      GOOGLE_IKEY: ""
-      OPENX_EKEY: ""
-      OPENX_IKEY: ""
-      ADX_EKEY:   ""
-      ADX_IKEY:   ""
+      ACCOUNTING: "accountingsystem"
+      FREQGOV: "false"
+      INDEXPAGE: "/index.html"
     ports:
-      - "8080:8080"
-      - "8155:8155"
-      - "7379:7379"
-      - "7000:7000"
-    #volumes:
-    #  - "./database.json:/database.json"
-    #  - "./payday.json:/Campaigns/payday.json"
-    networks:
-      - rtb_net
+    - "8080:8080"
+    - "8155:8155"
+    - "7379:7379"
+    - "7000:7000"
     depends_on:
-      - kafka
-      - zerospike
-    command: bash -c "./wait-for-it.sh kafka:9092 --t=120 && ./wait-for-it.sh zerospike:6000 --t 120 && sleep 1; ./rtb4free"
-    #command:  bash -c "./wait-for-it.sh kafka:9092 --timeout=120 && ./wait-for-it.sh zerospike:6000 --timeout 120 && sleep 1; ./rtb4free-jmx"
+    - kafka
+    - zerospike
+    command: bash -c "./wait-for-it.sh kafka:9092 -t 120 && ./wait-for-it.sh zerospike:6002 -t 120 && sleep 1; ./rtb4free"
 
 
-networks:
-  rtb_net:
-    external: true
+  simulator:
+      image: "jacamars/rtb4free:v1"
+      environment:
+        BIDDER: "localhost:8080"
+        WIN:    "10"
+        PIXEL:  "95"
+        CLICK:  "2"
+        SLEEP:  "100"
+      command: bash -c "./wait-for-it.sh localhost:8080 -t 120 && sleep 60;  ./load-elastic -host $$BIDDER -win $$WIN -pixel $$PIXEL -click $$CLICK -file data/requests -sleep $$SLEEP"
+      network_mode: host
+
