@@ -1,12 +1,10 @@
 package com.jacamars.dsp.rtb.bidder;
 
-import java.net.InetAddress;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 
 
 import java.util.ArrayList;
-import java.util.Date;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -237,7 +235,7 @@ public enum Controller {
     static final Logger logger = LoggerFactory.getLogger(Controller.class);
 
     /**
-     * Private construcotr with specified hosts
+     * Private constructor with specified hosts
      *
      * @throws Exception on REDIS errors.
      */
@@ -960,7 +958,8 @@ public enum Controller {
      */
 
     public boolean sendRequest(BidRequest br, boolean override) throws Exception {
-        if (br.notABidRequest())
+   
+    	if (br.notABidRequest())
             return false;
 
         if (!override) {
@@ -988,7 +987,6 @@ public enum Controller {
             }
             original.put("logtype", "requests");
             requestQueue.addString(original.toString());
-
         }
 
         return true;
@@ -1162,9 +1160,17 @@ public enum Controller {
                 map.put(ExpireKeys.getInstance().getSpecKey(i), f.capKey);
                 map.put(ExpireKeys.getInstance().getExpireKey(i), f.capTimeout);
                 map.put(ExpireKeys.getInstance().getTimeUnitKey(i), f.capTimeUnit);
+                
+                /* try {
+					System.out.println("*** F:" + DbTools.mapper.writeValueAsString(map));
+				} catch (JsonProcessingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} */
             }
         }
         try {
+			// System.out.println("------->" + DbTools.mapper.writeValueAsString(map));
             bidCachePool.hmset(br.oidStr, map, Configuration.getInstance().ttl);
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -1285,6 +1291,9 @@ class CommandLoop implements com.jacamars.dsp.rtb.jmq.MessageListener<Object> {
     Configuration config = Configuration.getInstance();
 
     long time = 0;
+    
+    /** Keep a queue of ids of commands so we can block duplicates sent in error */
+    List<String> repeats = new ArrayList();
 
     /**
      * How long since the last we saw a message on the control loop.
@@ -1304,13 +1313,24 @@ class CommandLoop implements com.jacamars.dsp.rtb.jmq.MessageListener<Object> {
 
         boolean controller = false;
 
-        Controller.logger.info("GOT MESSAGE: {}",xitem);
-
         if (xitem instanceof Ping) {
             return;
         }
 
+
+        /**
+         * Watch out for chatty cathy
+         */
         BasicCommand item = (BasicCommand)xitem;
+        if (repeats.contains(item.id)) {
+            return;
+        }
+        if (repeats.size()>20)
+            repeats.remove(0);
+        repeats.add(item.id);
+        /////////////////////////////////
+
+        Controller.logger.info("GOT MESSAGE: {}",xitem);
         if (item.from != null)
             controller = item.from.startsWith("crosstalk");
 

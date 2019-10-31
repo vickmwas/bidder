@@ -1,32 +1,36 @@
 {
-  "NOfraud" : {
-    "type" : "forensiq",
-    "threshhold" : 0,
-    "ck" : "none",
-    "endpoint" : "",
-    "bidOnError" : false,
-    "db" : "local/GeoIP2-ISP.mmdb",
-    "watchlist" : [ "Hetzner", "Amazon web services", "Linode", "Digital Ocean", "Vultr" ]
+  "GDPR_MODE": "$GDPR_MODE",
+  "fraud" : {
+    "type" : "$FRAUDTYPE",
+    "threshhold" : "$FRAUDTHRESHOLD",
+    "ck" : "$FRAUDKEY",
+    "endpoint" : "$FRAUDENDPOINT",
+    "bidOnError" : "$FRAUDBIDONERROR",
+    "connections": "$FRAUDCONNECTIONS",
+    "watchlist": "$FRAUDWATCHLIST"
   },
   "app" : {
+    "geopatch": "$GEOPATCH",
     "concurrency" : "1",
     "NOdeadmanswitch":"accountingsystem",
     "threads": "128",
+    "trace": "$TRACE",
     "stopped" : false,
+    "demodb": "database.json",
     "ttl" : 300,
-    "pixel-tracking-url" : "http://localhost:8080/pixel",
-    "clickurl" : "http://localhost:8080/click",
-    "winurl" : "http://localhost:8080/rtb/win",
-    "redirect-url" : "http://localhost:8080/redirect",
-    "vasturl" : "http://localhost:8080/vast",
-    "eventurl" : "http://localhost:8080/track",
-    "postbackurl" : "http://localhost:8080/postback",
-    "adminPort" : "0",
+    "pixel-tracking-url" : "$EXTERNAL/pixel",
+    "clickurl" : "$EXTERNAL/click",
+    "winurl" : "$EXTERNAL/rtb/win",
+    "redirect-url" : "$EXTERNAL/redirect",
+    "vasturl" : "$EXTERNAL/vast",
+    "eventurl" : "$EXTERNAL/track",
+    "postbackurl" : "$EXTERNAL/postback",
+    "adminPort" : "$ADMINPORT",
     "adminSSL" : false,
     "password" : "startrekisbetterthanstarwars",
     "verbosity" : {
       "level" : -3,
-      "nobid-reason" : false
+      "nobid-reason" : "$NOBIDREASON"
     },
     "geotags" : {
       "states" : "",
@@ -60,6 +64,7 @@
         "nexage" : "<a href='{redirect_url}/exchange={pub}/ad_id={ad_id}/creative_id={creative_id}/price=${AUCTION_PRICE}/lat={lat}/lon={lon}/bid_id={bid_id}?url={creative_forward_url}'><img src='{creative_image_url}' height='{creative_ad_height}' width='{creative_ad_width}'></a><img src='{pixel_url}/exchange={pub}/ad_id={ad_id}/creative_id={creative_id}/{bid_id}/price=${AUCTION_PRICE}/lat={lat}/lon={lon}/bid_id={bid_id}' height='1' width='1'>",
         "smartyads" : "{creative_forward_url}",
         "atomx" : "{creative_forward_url}",
+        "bidswitch" : "{creative_forward_url}",
         "adventurefeeds" : "{creative_forward_url}",
         "gotham" : "{creative_forward_url}",
         "epomx" : "{creative_forward_url}",
@@ -132,6 +137,11 @@
     "id" : "intango-id",
     "bid" : "/rtb/bids/intango=com.jacamars.dsp.rtb.exchanges.Generic"
   }, {
+    "name" : "openssp",
+    "id" : "openssp-id",
+    "bid" : "/rtb/bids/openssp=com.jacamars.dsp.rtb.exchanges.Generic"
+  },
+  {
     "name" : "vdopia",
     "id" : "vdopia-id",
     "bid" : "/rtb/bids/vdopia=com.jacamars.dsp.rtb.exchanges.Generic"
@@ -247,11 +257,19 @@
     "name" : "admedia",
     "id" : "admedia-id",
     "bid" : "/rtb/bids/admedia=com.jacamars.dsp.rtb.exchanges.Generic&!usesEncodedAdm"
+  },{
+    "name" : "mobfox",
+    "id" : "mobfox-id",
+    "bid" : "/rtb/bids/mobfox=com.jacamars.dsp.rtb.exchanges.Generic&!usesEncodedAdm"
+  }, {
+    "name" : "bidswitch",
+    "id" : "$BIDSWITCH_ID",
+    "bid" : "/rtb/bids/bidswitch=com.jacamars.dsp.rtb.exchanges.bidswitch.Bidswitch&!usesEncodedAdm"
   }],
-  "NOs3" : {
-    "access_key_id" : "$S3ACCESSKEY",
-    "secret_access_key" : "$S3SECRETKEY",
-    "region" : "$S3REGION",
+  "s3" : {
+    "access_key_id" : "$AWSACCESSKEY",
+    "secret_access_key" : "$AWSSECRETKEY",
+    "region" : "$AWSREGION",
     "bucket" : "$S3BUCKET"
   },
   "lists" : [ {
@@ -259,8 +277,8 @@
     "name" : "@ISO2-3",
     "type" : "com.jacamars.dsp.rtb.tools.IsoTwo2Iso3"
   }, {
-    "filename" : "data/METHBOT.txt",
-    "name" : "@CIDR",
+    "filename" : "$MASTERCIDR",
+    "name" : "@MASTERCIDR",
     "type" : "CidrMap"
   }, {
     "filename" : "data/adxgeo.csv",

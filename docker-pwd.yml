@@ -21,6 +21,7 @@ services:
     image: "jacamars/zerospike:v1"
     environment:
       BROKERLIST: "kafka:9092"
+      
     #ports:
      # - "6000:6000"
      #- "6001:6001"
@@ -31,21 +32,23 @@ services:
     #  - "./cache.db:/cache.db"
     depends_on:
       - kafka
-    command: bash -c "sleep 5 && ./wait-for-it.sh kafka:9092 -t 120 && sleep 1; ./zerospike"
+    command: bash -c "sleep 5 && ./wait-for-it.sh $$BROKERLIST -t 120 && sleep 1; ./zerospike"
 
   bidder:
     image: "jacamars/rtb4free:v1"
     environment:
+      GDPR_MODE: "true"
       BROKERLIST: "kafka:9092"
       PUBSUB: "zerospike"
       EXTERNAL: "http://localhost"
-      ADMINPORT: "0"
+      ADMINPORT: "8155"
       ACCOUNTING: "NONE"
       FREQGOV: "false"
       INDEXPAGE: "/index.html"
+      BIDSWITCH_ID: "5678"
     ports:
-      - "80:8080"
-    #  - "8155:8155"
+      - "8080:8080"
+      - "8155:8155"
     #  - "7379:7379"
     #  - "7000:7000"
     restart: always
@@ -55,7 +58,7 @@ services:
     depends_on:
       - kafka
       - zerospike
-    command: bash -c "sleep 5 && ./wait-for-it.sh kafka:9092 -t 120 && ./wait-for-it.sh zerospike:6000 -t 120 && sleep 1; ./rtb4free"
+    command: bash -c "sleep 5 && ./wait-for-it.sh $$BROKERLIST -t 120 && ./wait-for-it.sh zerospike:6000 -t 120 && sleep 1; ./rtb4free"
     #command:  bash -c "sleep 5 && ./wait-for-it.sh kafka:9092 -t 120 && ./wait-for-it.sh zerospike:6000 -t 120 && sleep 1; ./rtb4free-jmx"
 
   simulator:

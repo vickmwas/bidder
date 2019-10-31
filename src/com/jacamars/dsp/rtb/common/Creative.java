@@ -97,6 +97,9 @@ public class Creative {
 
 	/** Selection weight. Weight is 1 to n. >> is heavier weight. */
 	public int weight = 1;
+	
+	// If this creative is tagged with categories. Used by bidswitch for example
+	public List<String> categories;
 
 	// /////////////////////////////////////////////
 	/** Native content assets */
@@ -140,6 +143,7 @@ public class Creative {
 
 	/** A sorter for the campaign/creative attributes, who is most likely to cause a false will bubble up */
 	private SortNodesFalseCount nodeSorter = new SortNodesFalseCount();
+	
 
 	/**
 	 * Empty constructor for creation using json.
@@ -173,6 +177,7 @@ public class Creative {
 		c.forwardurl = forwardurl;
 		c.imageurl = imageurl;
 		c.dimensions = dimensions;
+		c.categories = categories;
 
 		c.encodeUrl();
 		return c;
@@ -287,6 +292,25 @@ public class Creative {
 		//strW = Integer.toString(w);
 		//strH = Integer.toString(h);
 		strPrice = Double.toString(price);
+		
+		if (extensions != null) {
+			String cat = extensions.get("categories");
+			if (cat != null) {
+				categories = new ArrayList();
+				String[] cats = cat.split(",");
+				for (String c : cats) {
+					categories.add(c.trim());
+				}
+			}
+		}
+		
+		/**
+		 * Always contain these!
+		 */
+		if (!macros.contains("{pixel_url}"))
+			macros.add("{pixel_url}");
+		if (!macros.contains("{win_url}"))
+			macros.add("{win_url}");
 	}
 
 	/**
@@ -535,7 +559,6 @@ public class Creative {
             List<Deal> deals = new ArrayList<Deal>();
 			for (int i = 0; i < attributes.size(); i++) {
 				n = attributes.get(i);
-
 				if (n.test(br,this,adId,imp,errorString,probe,deals) == false) {
 				    if (n.hierarchy == null) {
                         if (errorString != null)

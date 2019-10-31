@@ -25,6 +25,7 @@ services:
     image: "jacamars/zerospike:v1"
     environment:
       BROKERLIST: "kafka:9092"
+      STATUSCHANNEL: "kafka://[$$BROKERLIST]&topic=status"
     ports:
     - "6000:6000"
     - "6001:6001"
@@ -75,55 +76,71 @@ services:
       CONTROL: "8100"
       JDBC: "jdbc:mysql://68.183.53.10:3301/rtb4free?user=root&password=MkUS5BD5wzG9H3dE"
     depends_on:
-    - kafka
-    - zerospike
-
-#  elastic1:
-#    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.2
-#    ports:
-#    - "9200:9200"
-#    - "9300:9300"
-#    environment:
-#    - discovery.type=single-node
-#    - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
-#    volumes:
-#    - "./esdata1:/usr/share/elasticsearch/data"
-
-  #      networks:
-  #        - kafka_net
-  #        - control_net
-
-#  logstash1:
-#    image: docker.elastic.co/logstash/logstash:6.1.1
-#    ports:
-#    - "5044:5044"
-#    environment:
-#    - "XPACK_MONITORING_ELASTICSEARCH_URL=http://elastic1:9200"
-#    - "XPACK_MONITORING_ENABLED=true"
-#    - "LS_JAVA_OPTS=-Xmx1g"
-
-
-
+      - kafka
+    command: bash -c "./wait-for-it.sh $$BROKERLIST --t=120 && sleep 1; ./zerospike"
 
   bidder:
     image: "jacamars/rtb4free:v1"
     environment:
+      GDPR_MODE: "false"
+      
       BROKERLIST: "kafka:9092"
+      
+      BIDSCHANNEL: "$BIDSCHANNEL"
+      WINSCHANNEL: "$WINSCHANNEL"
+      REQUESTSCHANNEL: "$REQUESTSCHANNEL"
+      CLICKSCHANNEL: "$CLICKSCHANNEL"
+      PIXELSCHANNEL: "$PIXELSCHANNEL"
+      VIDEOEVENTSCHANNEL: "$VIDEOEVENTSCHANNEL"
+      POSTBACKEVENTSCHANNEL: "$POSTBACKEVENTSCHANNEL"
+      STATUSCHANNEL: "$STATUSCHANNEL"
+      REASONSCHANNEL: "$REASONSCHANNEL"  
+      LOGCHANNEL: "$LOGCHANNEL"
+         
       PUBSUB: "zerospike"
       EXTERNAL: "http://localhost:8080"
+<<<<<<< HEAD
       ACCOUNTING: "accountingsystem"
       FREQGOV: "false"
       INDEXPAGE: "/index.html"
+=======
+      ACCOUNTING: "NONE"
+      
+      S3BUCKET: ""
+      S3REGION: ""
+      S3SECRETKEY: ""
+      S3ACCESSKEY: ""
+      
+      AWSACCESSKEY: ""
+      AWSSECRETKEY: ""
+      AWSREGION: ""
+      
+      GOOGLE_EKEY: ""
+      GOOGLE_IKEY: ""
+      OPENX_EKEY: ""
+      OPENX_IKEY: ""
+      ADX_EKEY:   ""
+      ADX_IKEY:   ""
+      BIDSWITCH_ID: "1234"
+      ADMINPORT: "0"
+>>>>>>> d5712e22f06a4befbe2be1875f74781d020f90d0
     ports:
     - "8080:8080"
     - "8155:8155"
     - "7379:7379"
     - "7000:7000"
     depends_on:
+<<<<<<< HEAD
     - kafka
     - zerospike
     command: bash -c "./wait-for-it.sh kafka:9092 -t 120 && ./wait-for-it.sh zerospike:6002 -t 120 && sleep 1; ./rtb4free"
 
+=======
+      - kafka
+      - zerospike
+    command: bash -c "./wait-for-it.sh $$BROKERLIST --t=120 && ./wait-for-it.sh zerospike:6000 --t 120 && sleep 1; ./rtb4free"
+    #command:  bash -c "./wait-for-it.sh kafka:9092 --timeout=120 && ./wait-for-it.sh zerospike:6000 --timeout 120 && sleep 1; ./rtb4free-jmx"
+>>>>>>> d5712e22f06a4befbe2be1875f74781d020f90d0
 
   simulator:
       image: "jacamars/rtb4free:v1"

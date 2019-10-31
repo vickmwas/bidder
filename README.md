@@ -1,10 +1,65 @@
-Bidder
-=====================
+[home](https://github.com/RTB4FREE/rtb4free/README.md) |
+[campaign manager](https://github.com/RTB4FREE/campaignmanager/README.md) |
+bidder |
+[crosstalk](https://github.com/RTB4FREE/crosstalk/README.md)
 
-These are the Docker instructions for working with Bidder, Crosstalk, Zerospike, Kafka and Zookeeper.
+<img src="https://github.com/RTB4FREE/rtb4free/blob/master/rtb4free-logo.png"
+ alt="RTB4FREE logo" title="RTB4FREE" align="right" />
+ 
+RTB4FREE Bidder
+===============
+
+This is the bidder component to the RTB4FREE open source DSP.  The bidder is a JAVA 1.8 based openRTB bidding system, scalable to 25K+ QPS per node.
+
+Working with source code
+------------------------
+
+If you want to modify the code:
+
+**Step 1:  Clone this Github repo**
+
+```
+git clone git@github.com:RTB4FREE/bidder.git
+cd bidder
+```
+
+**Step 2: Make sure you have a sample database for use with QA tests**
+
+```
+cp sampledb.json database.json
+```
+
+**Step 3: Run Maven**
+
+```
+mvn assembly:assembly -DdescriptorId=jar-with-dependencies  -Dmaven.test.skip=true
+```
+
+*Note: Remember to submit changes back to this project via a [pull request](https://github.com/RTB4FREE/bidder/pulls)!*
+
+
+Building Docker images
+----------------------
+
+To make the Docker images locally:
+
+```
+	$docker build -t jacamars/zerospike:v1 -f Docker.zerospike .
+	$docker build -t jacamars/rtb4free:v1 -f Docker.bidder .
+```
+
+6. If you need to push to the repo:
+
+   $docker push jacamars/rtb4free:v1
+   $docker push jacamars/zerospike:v1
+   
+Docker Based
+============
+
+The instructions below are for deploying the bidder component.  To deploy the full RTB4FREE system, please refer to the documentation in the [RTB4FREE/rtb4free](https://github.com/RTB4FREE/rtb4free/README.md) repo.  The bidder relies on the [Crosstalk](https://github.com/RTB4FREE/crosstalk/README.md), [Zerospike](https://github.com/RTB4FREE/zerospike/README.md), Kafka, and Zookeeper projects.
 
 No Source Deployments
-===========================
+======================
 
 Docker Swarm
 ---------------------------
@@ -38,32 +93,7 @@ Use Docker Compose to run Crosstalk, Bidder, Zerospike, Kafka and Zookeeper in a
 
    $docker-compose up 
    
-Working with Source
----------------------------------
-If you want to modify the code.
 
-1. GIT clone, cd to the cloned directory.
-
-2. Make your changes...
-
-3. Make sure you have a sample database for use with qa tests:
-
-   $cp sampledb.json database.json
-   
-4. Run maven:
-
-   $mvn assembly:assembly -DdescriptorId=jar-with-dependencies  -Dmaven.test.skip=true
-   
-5. Make the docker images locally:
-
-   $docker build -t jacamars/zerospike:v1 -f Docker.zerospike .
-   $docker build -t jacamars/rtb4free:v1 -f Docker.bidder .
-   
-6. If you need to push to the repo:
-
-   $docker push jacamars/rtb4free:v1
-   $docker push jacamars/zerospike:v1
-   
 Changing Operational Parameters
 -------------------------------------
 The bidder uses a container based file in Campaigns/payday.json. If you need to change the parameters within it
@@ -113,41 +143,6 @@ using the volumes command. Example, suppose you wanted to use the file mycache.d
 Changing port assignments is not encouraged. Stick to the defaults to keep from losing your mind. There are 
 a lot of interdependencies.
 
-HANDY DOCKER ACTIVITIES
-=====================================
-
-Running Containers
---------------------------------------
-
-    $docker ps
-    
-Attach to a Container
----------------------------------------
-Do a docker ps and then use the container-id or name:
-
-    $docker exec -it <id-or-name> /bin/bash
-    
-Attach to the log
----------------------------------------
-Do a docker ps and then use the container-id or name:
-
-    $docker logs -f <id-or-name>
-    
-Delete an image
-----------------------------------------
-Do a docker ls firsr
-
-    $docker image ls
-    
-Find the container id
-
-    $docker image rm <image-id> --force
-    
-Correct Checksum Error
------------------------------------------
-If docker-compose complains about a checksum after you delete a container do this:
-
-    $docker-compose rm
 
 Connect Intellij Debugger to Bidder, Crosstalk or Zerospike
 -----------------------------------------
@@ -326,190 +321,6 @@ However, here is an example file, and a brief overview
     "name" : "adventurefeeds",
     "id" : "adventurefeedid",These are the Docker instructions for working with Bidder, Crosstalk, Zerospike, Kafka and Zookeeper.
 
-No Source Deployments
-===========================
-There are 3 compose files: docker-compose.yml, justkafka.yml, and zerospike.yml
-
-The file docker-compose.yml will bring up kafka, zookeeper, zerospike and the bidder. This is a completely
-operational bidder. It will load the test campaigns in database.json.
-
-The file justkafka.yml brings up kafka and zookeeper but NOT bidder or zerospike This is good for debugging 
-zerospike and the bidder in an IDE.
-
-The file zerospike.yml brings up kafka, zookeeper and zerospike but NOT the bidder. This is good for 
-debugging just the bidder in an IDE.
-
-Docker Swarm
----------------------------
-Use Docker swarm to run Crosstalk, Bidder, Zerospike, Kafka and Zookeeper
-
-1. Copy docker-compose.yml from Project's root directory.
-
-2. Start the swarm
-
-   $docker swarm init
-
-3. Start the network
-
-   $docker network create --driver overlay rtb_net --subnet=10.0.9.0/24
-
-4. Deploy
-
-   $docker stack deploy -c docker-compose.yml bidder
-
-Docker Compose
--------------------------------
-Use Docker Compose to run Crosstalk, Bidder, Zerospike, Kafka and Zookeeper in a single console window:
-
-1. Copy docker-compose.yml from Project's root directory.
-
-2. Deploy
-
-   $docker-compose up
-
-Working with Source
----------------------------------
-If you want to modify the code.
-
-1. GIT clone, cd to the cloned directory.
-
-2. Make your changes...
-
-3. Run maven:
-
-   $mvn assembly:assembly -DdescriptorId=jar-with-dependencies  -Dmaven.test.skip=true
-
-4. Make the docker images locally:
-
-   $docker build -t jacamars/zerospike -f Docker.zerospike .
-   $docker build -t jacamars/rtb4free:v1 -f Docker.bidder .
-
-5. If you need to push to your repo (change jacamars to your repo):
-
-   $docker push jacamars/rtb4free:v1
-   $docker push jacamars/zerospike
-
-
-Changing Operational Parameters With Docker
---------------------------------------------
-The bidder uses a container based file in Campaigns/payday.json. If you need to change the parameters within it
-do it in your own copy and use volumes command to mount into it. Example, suppose you made your own copy of payday.json
-and modified it and you called it ./myconfig.json. You modify the bidder services section in docker-compose.yml to
-mount. Note the volumes directive:
-
-  bidder:
-    image: "jacamars/bidder"
-    environment:
-      BROKERLIST: "kafka:9092"
-      PUBSUB: "zerospike"
-      EXTERNAL: "http://localhost:8080"
-    ports:
-      - "8080:8080"
-      - "8100:8100"
-      - "7379:7379"
-    volumes:
-      - ./myconfig.json:Campaigns/payday.json
-    networks:
-      - rtb_net
-    depends_on:
-      - kafka
-      - crosstalk
-      - zerospike
-    command: bash -c "./wait-for-it.sh kafka:9092 -t 120 && ./wait-for-it.sh zerospike:6000 -t 120 && sleep 1; ./rtb4free"
-
-Zerospike uses a cache.db file located within the container. For operational use, the real cache.db must be mounted
-using the volumes command. Example, suppose you wanted to use the file mycache.db in your current working directory:
-
-  zerospike:
-    image: "jacamars/zerospike"
-    environment:
-      BROKERLIST: "kafka:9092"
-    ports:
-      - "6000:6000"
-      - "6001:6001"
-      - "6002:6002"
-    volumes:
-      - "./mycache.db:/cache.db"
-    networks:
-      - rtb_net
-    depends_on:
-      - kafka
-    command: bash -c "./wait-for-it.sh kafka:9092 -t 120 && sleep 1; ./zerospike"
-
-Changing port assignments is not encouraged. Stick to the defaults to keep from losing your mind. There are
-a lot of interdependencies.
-
-Configuration file and shell variables can be referenced inside of the config file. The config file can access 
-shell environment variables. Here is a list of environment variables that come with defaults. If you use these 
-and don't provide a value for the shell variable, it will use the indicated default.
-   
-If you use your own shell environment variables and don't provide a value, then "" will be used.
-   
-   $ADMINPORT       "8155"
-   $BROKERLIST     "[localhost:9092]"
-   $CONCURRENCY     "3"
-   $EXTERNAL        "http://localhost:8080"
-   $FREQGOV         "true"
-   $HOSTNAME        Docker instance
-   $INITPORT        "6002"
-   $PIXEL           "localhost"
-   $PUBPORT         "6000"
-   $PUBSUB          "localhost"
-   $REQUESTSTRATEGY "100"
-   $SUBPORT         "6001"
-   $THREADS         "2000"
-   $VIDEO           "localhost"
-   $WIN             "localhost"
-   
-   Note, all substitutions are strings.
-   
-HANDY DOCKER ACTIVITIES
-=====================================
-
-Running Containers
---------------------------------------
-
-    $docker ps
-
-Attach to a Container
----------------------------------------
-Do a docker ps and then use the container-id or name:
-
-    $docker exec -it <id-or-name> /bin/bash
-
-Attach to the log
----------------------------------------
-Do a docker ps and then use the container-id or name:
-
-    $docker logs -f <id-or-name>
-
-Delete an image
-----------------------------------------
-Do a docker ls firsr
-
-    $docker image ls
-
-Find the container id
-
-    $docker image rm <image-id> --force
-
-Correct Checksum Error
------------------------------------------
-If docker-compose complains about a checksum after you delete a container do this:
-
-    $docker-compose rm
-
-Connect Intellij Debugger to Bidder, Crosstalk or Zerospike
------------------------------------------
-
-Bidder:
-In the service for the bidder in docker-compose.yml, use ./rtb4free-jmx instead of ./rtbf4free Then in your Intellij system, create a remote debug and connect using port 9000.
-
-Zerospike
-In the service for the zerospike in docker-compose.yml, use ./zerospike-jmx instead of ./zerospike Then in your Intellij system, create a remote debug and connect using port 9000.
-
-Crosstalk:
-In the service for the crosstalk in docker-compose.yml, use ./crosstalk-jmx instead of ./crosstalk Then in your Intellij system, create a remote debug and connect using port 9000.
 
 THEORY OF OPERATION
 =====================================
@@ -568,6 +379,12 @@ associate the loading of the page in the web browser with the winning bid and th
 User Clicks the Ad
 ------------------
 When the user clicks on the ad, the referrer URL is fired and this is also handled by the handler. The handler then uses the URI encoding to transmit the information to a ZeroMQ channel, usually called 'clicks', for further processing and accounting downstream.
+
+Budgeting
+------------------
+The bidder is designed for maximum bidding. It does not handle budgeting. Instead, the companion program Crosstalk handles
+the budgeting in coordination with the Campaign Manager. The Campaign manager will allow you to specify hourly, daily and total
+budgeting by campaign.
 
 USING THE SIMULATOR WEB PAGE
 ============================
